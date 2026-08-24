@@ -28,10 +28,10 @@ func (s *Store) WriteConfig(name string, payload []byte) error {
 		return fmt.Errorf("marshal config %s: %w", name, err)
 	}
 	if err := s.writeBytes("config/"+name+".json", data); err != nil {
-		return nil
+		return fmt.Errorf("write config %s: %w", name, err)
 	}
 	if err := s.AppendLine("config/ack.log", []byte(name)); err != nil {
-		return nil
+		return fmt.Errorf("ack config %s: %w", name, err)
 	}
 	return nil
 }

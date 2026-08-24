@@ -15,10 +15,14 @@ func SwitchActive(c *Controller, next Config) error {
 	}
 	c.mu.Lock()
 	next.Version = c.active.Version + 1
+	c.mu.Unlock()
+	if err := c.sink.PersistConfig(next); err != nil {
+		return fmt.Errorf("persist strategy config: %w", err)
+	}
+	c.mu.Lock()
 	c.versions = append(c.versions, next)
 	c.active = next
 	c.mu.Unlock()
-	_ = c.sink.PersistConfig(next)
 	if err := c.auditor.Record(c.unitID, audit.KindStrategy, "strategy-switch", map[string]string{
 		"name":    next.Name,
 		"mode":    next.Mode,
