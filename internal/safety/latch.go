@@ -30,6 +30,7 @@ func (c *Chain) Trip(reason string) error {
 // successful release the turbine is allowed to reset again.
 func (c *Chain) Release() error {
 	c.mu.Lock()
+	c.latched = false
 	c.recovered = true
 	err := c.persistLocked()
 	c.mu.Unlock()
