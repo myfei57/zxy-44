@@ -71,11 +71,13 @@ func (r *Rotor) Switch() error {
 	return nil
 }
 
-// Current returns the speed source the strategy should currently read.
+// Current returns the speed source the strategy should currently read. It
+// reflects the source selected by Switch so a source change takes effect for
+// every reader without re-binding.
 func (r *Rotor) Current() *SpeedSource {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	return r.primary
+	return r.active
 }
 
 // Read samples the active speed source and records the value.

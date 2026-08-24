@@ -2,21 +2,25 @@ package strategy
 
 import "windctl/internal/rotor"
 
-// Evaluator checks the overspeed condition against the rotor. It must always
-// read the currently selected speed source.
+// Evaluator checks the overspeed condition against the rotor. It resolves the
+// speed source on every check so it follows a source switch immediately
+// instead of reading a stale, cached source.
 type Evaluator struct {
 	rotor *rotor.Rotor
-	source *rotor.SpeedSource
 }
 
 // NewEvaluator creates an overspeed evaluator around a rotor.
 func NewEvaluator(r *rotor.Rotor) *Evaluator {
-	return &Evaluator{rotor: r, source: r.Current()}
+	return &Evaluator{rotor: r}
 }
 
 // Check reports whether the rotor speed exceeds limit.
 func (e *Evaluator) Check(limit float64) bool {
-	value, err := e.source.Read()
+	source := e.rotor.Current()
+	if source == nil {
+		return false
+	}
+	value, err := source.Read()
 	return err == nil && value > limit
 }
 
